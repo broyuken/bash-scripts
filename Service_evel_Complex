@@ -1,0 +1,83 @@
+#!/bin/bash
+# Check Point Service Level License Change
+# Author: Brian Roy
+# Check Point Software Technologies
+# Update 3/2/2017
+
+# Check if Gateway IP is valid
+if echo "$1" | { IFS=. read a b c d e;
+    test "$a" -ge 0 && test "$a" -le 255 &&
+    test "$b" -ge 0 && test "$b" -le 255 &&
+    test "$c" -ge 0 && test "$c" -le 255 &&
+    test "$d" -ge 0 && test "$d" -le 255 &&
+    test -z "$e" \
+    2> /dev/null; }; then
+        GATEWAY=$1
+        echo -n "Gateway IP "; tput setaf 2; echo -n "$GATEWAY"; tput sgr0; echo " is valid"
+else
+        2>/dev/null
+        BADGATEWAY=$1
+        tput setaf 1; echo "ERROR"; tput sgr0
+        echo -n "Gateway IP "; tput setaf 1; echo -n "$BADGATEWAY"; tput sgr0; echo " is not valid"
+        tput setaf 6; echo "Usage: ./ServiceLevel.sh X.X.X.X ServiceLevel"; tput sgr0
+  exit 1
+fi
+
+# Check if SERVICELEVEL is a valid selection
+if [[ "$2" =~ ^(Essential|Core|Complete)$ ]]; then
+        SERVICELEVEL=$2
+        echo -n "Gateway will be set to to "; tput setaf 2; echo "$SERVICELEVEL"; tput sgr0
+else
+        tput setaf 1; echo "ERROR"; tput sgr0
+        echo "Please enter one of the following (Case Sensitive)"
+        tput setaf 3
+        echo "Essential"
+        echo "Core"
+        echo "Complete"
+        tput setaf 6; echo "Usage: ./ServiceLevel.sh X.X.X.X ServiceLevel"; tput sgr0
+  exit 2
+fi
+
+#Define $CPLICPUT
+if $SERVICELEVEL="Essential"; then
+CPLICPUT="XXXXXXXXXX"
+
+# Apply Core License
+elif $SERVICELEVEL="Core"; then
+CPLICPUT="YYYYYYYYYY"
+
+# Apply Complete License
+elif $SERVICELEVEL="Complete"; then
+CPLICPUT="ZZZZZZZZZZ"
+fi
+
+# Remove Old License
+if rm $CPDIR/conf/cp.license 2>/dev/null; then
+        echo "Old license removed successfully"
+else
+        tput setaf 1; echo "ERROR"; tput sgr0
+        echo "Old license could not be removed"
+  exit 4
+fi
+
+# Add New License
+#Remove Old License
+if $CPLICPUT 2>/dev/null; then
+        echo "License added successfully"
+else
+        tput setaf 1; echo "ERROR"; tput sgr0
+        echo "License not added"
+  exit 4
+fi
+
+#Verify License
+if cplic put 2>/dev/null; then
+        echo "License Info Below:"
+else
+        tput setaf 1; echo "ERROR"; tput sgr0
+        echo "No license found"
+  exit 6
+fi
+
+# Reset terminal colors back to defaults
+tput sgr0
