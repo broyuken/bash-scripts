@@ -9,10 +9,10 @@
 #set -o pipefail -e
 
 #Set HOMEPATH
-HOMEPATH=/home/local/AD
+HOMEPATH=/home
 
 #Set DOMAINCONTROLLER
-DOMAINCONTROLLER=dc1.broyuken.com
+DOMAINCONTROLLER=dc1
 
 #Get Users Username
 read -p "Username to create: " USER
