@@ -12,7 +12,7 @@ BACKUPLOCATION=/MinecraftBackup
 AGELIMIT=30
 DATE=$(date +'%m_%d_%Y')
 OLDBACKUPS=$(find $BACKUPLOCATION -maxdepth 1 -name *.tgz -mtime +$AGELIMIT -type f -exec echo "{}" \; | awk -F "/" '{print $(NF)}' )
-NUMBEROFOLDBACKUPS=$(find $BACKUPLOCATION -maxdepth 1 -name *.tgz -mtime +$AGELIMIT -type f -exec echo "{}" \; | wc -l )
+NUMBEROFOLDBACKUPS=$(find $BACKUPLOCATION -maxdepth 1 -name \*.tgz -mtime +$AGELIMIT -type f -exec echo "{}" \; | wc -l )
 REDTEXT=`tput setaf 1`
 RESETTEXT=`tput sgr0`
 
