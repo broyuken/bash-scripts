@@ -3,16 +3,13 @@
 # Script to create sftp users in a jail
 #
 # Author:  Brian Roy
-# Update:  1-27-2017
-
-#Error Checking
-#set -o pipefail -e
+# Update:  4-7-2018
 
 #Set HOMEPATH
 HOMEPATH=/home
 
 #Set DOMAINCONTROLLER
-DOMAINCONTROLLER=dc1.broyuken.com
+DOMAINCONTROLLER=dc1.example.com
 
 #Set USERGROUP
 USERGROUP=domain^users
@@ -49,34 +46,23 @@ else
 fi
 
 #create upload and download directories
-if [ ! -d "$HOMEPATH/$USER/upload" ]; then
-  sudo mkdir $HOMEPATH/$USER/upload
-else
-  tput setaf 1; echo "ERROR"; tput sgr0
-  echo "upload directory already exists"
-  while true; do
-      read -sn1 -p "Do you wish to continue (Y/N)" yn
-    case $yn in
-      [Yy]* ) echo -e "\nYou selected yes, continuing"; break;;
-      [nn]* ) echo -e "\nYou selected no, exiting"; exit 1;;
-      * ) echo "Please answer Y or N.";;
-    esac
-  done
-fi
-if [ ! -d "$HOMEPATH/$USER/download" ]; then
-  sudo mkdir $HOMEPATH/$USER/download
-else
-  tput setaf 1; echo "ERROR"; tput sgr0
-  echo "download directory already exists"
-  while true; do
-      read -sn1 -p "Do you wish to continue (Y/N)" yn
-    case $yn in
-      [Yy]* ) echo -e "\nYou selected yes, continuing"; break;;
-      [nn]* ) echo -e "\nYou selected no, exiting"; exit 1;;
-      * ) echo "Please answer Y or N.";;
-    esac
-  done
-fi
+for DIRECTORY in upload download
+do
+  if [ ! -d "$HOMEPATH/$USER/$DIRECTORY" ]; then
+    sudo mkdir $HOMEPATH/$USER/$DIRECTORY
+  else
+    tput setaf 1; echo "ERROR"; tput sgr0
+    echo "$DIRECTORY directory already exists"
+    while true; do
+        read -sn1 -p "Do you wish to continue (Y/N)" yn
+      case $yn in
+        [Yy]* ) echo -e "\nYou selected yes, continuing"; break;;
+        [nn]* ) echo -e "\nYou selected no, exiting"; exit 1;;
+        * ) echo "Please answer Y or N.";;
+      esac
+    done
+  fi
+done
 
 #set owner of upload directory to $USER
 if sudo chown $USER:$USERGROUP $HOMEPATH/$USER/upload 2>/dev/null; then
@@ -89,7 +75,7 @@ else
 fi
 
 #mount JAILDIR inside jail
-if [ -z "$var" ]; then
+if [ -z "$JAILDIR" ]; then
   echo "No jaildir defined, download dir will be empty"
 else
   if [ -d "$JAILDIR" ]; then
